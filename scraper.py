@@ -19,6 +19,7 @@ DEFAULT_DELAY = 5
 DEFAULT_RETRIES = 1
 DEFAULT_TIMEOUT = 60
 
+
 class Downloader:
     def __init__(self, delay=DEFAULT_DELAY, user_agent=DEFAULT_AGENT, proxies=None, num_retries=DEFAULT_RETRIES, timeout=DEFAULT_TIMEOUT, opener=None, cache=None):
         socket.setdefaulttimeout(timeout)

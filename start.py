@@ -1,6 +1,7 @@
 import scraper
 import re, lxml, lxml.html
 import csv
+from MongoCache import MongoCache
 
 
 # url = 'https://metanit.com/python/tutorial/8.2.php'
@@ -21,8 +22,8 @@ class ScrapeCallback:
 
 seed_url = 'http://example.webscraping.com/index'
 link_regex = '/(index|view)'
-links = scraper.link_crawler(seed_url, link_regex, max_depth=1, scrape_callback=ScrapeCallback())
+scraper.link_crawler(seed_url, link_regex, max_depth=1, scrape_callback=ScrapeCallback(),cache=MongoCache())
 
-print(links)
+
 
 
