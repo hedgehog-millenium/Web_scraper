@@ -12,11 +12,11 @@ class AlexaCallback:
     def __call__(self, url, html):
         if url == self.seed_url:
             urls = []
-        with ZipFile(BytesIO(html)) as zf:
-            csv_filename = zf.namelist()[0]
-            data = codecs.iterdecode(zf.open(csv_filename), 'utf-8')
-            for _, website in csv.reader(data):
-                urls.append('http://' + website)
-                if len(urls) == self.max_urls:
-                    break
-        return urls
+            with ZipFile(BytesIO(html)) as zf:
+                csv_filename = zf.namelist()[0]
+                data = codecs.iterdecode(zf.open(csv_filename), 'utf-8')
+                for _, website in csv.reader(data):
+                    urls.append('http://' + website)
+                    if len(urls) == self.max_urls:
+                        break
+            return urls

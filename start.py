@@ -11,10 +11,12 @@ seed_url = 'http://example.webscraping.com/index'
 link_regex = '/(index|view)'
 
 if __name__ == "__main__":
-    # MongoCache().clear()
     scrape_callback = AlexaCallback()
+    cache = MongoCache()
     scraper.link_crawler(seed_url=scrape_callback.seed_url,
-                         cache=MongoCache(),
-                         scrape_callback=ScrapeCallback() )
+                         cache=cache,
+                         scrape_callback=scrape_callback,
+                         ignore_robots=True,
+                         check_domain=False)
 
 
