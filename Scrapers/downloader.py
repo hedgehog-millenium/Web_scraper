@@ -1,6 +1,6 @@
 import random
 import socket
-from urllib import request, parse
+from urllib import request, parse ,error
 from Scrapers.throttle import Throttle
 
 
