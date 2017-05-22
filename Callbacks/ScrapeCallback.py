@@ -1,6 +1,7 @@
 import re, lxml, lxml.html
 import csv
 
+
 class ScrapeCallback:
     def __init__(self):
         self.writer = csv.writer(open('countries.csv', 'w'))

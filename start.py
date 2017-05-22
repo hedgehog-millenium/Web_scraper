@@ -1,6 +1,8 @@
 from Callbacks.ScrapeCallback import ScrapeCallback
+from Callbacks.alexaCallback import AlexaCallback
 from DB.MongoCache import MongoCache
 from Scrapers import scraper
+
 
 # url = 'https://metanit.com/python/tutorial/8.2.php'
 # sitemap_url = 'https://metanit.com/sitemap.xml'
@@ -10,4 +12,9 @@ link_regex = '/(index|view)'
 
 if __name__ == "__main__":
     # MongoCache().clear()
-    scraper.link_crawler(seed_url, link_regex, max_depth=1, scrape_callback=ScrapeCallback(), cache=MongoCache())
+    scrape_callback = AlexaCallback()
+    scraper.link_crawler(seed_url=scrape_callback.seed_url,
+                         cache=MongoCache(),
+                         scrape_callback=ScrapeCallback() )
+
+
