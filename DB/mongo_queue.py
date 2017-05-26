@@ -12,17 +12,21 @@ class MongoQueue:
         self.timeout = timeout
 
     def __nonzero__(self):
-        record = self.db.wrawl_queue.find_one({'status': {'$ne': self.COMPLETE}})
+        """Returns True if there are more jobs to process
+        """
+        record = self.db.crawl_queue.find_one(
+            {'status': {'$ne': self.COMPLETE}}
+        )
         return True if record else False
 
     def push(self, url):
         try:
-            self.db.wrawl_queue.insert({'_id': url, 'status': self.OUTSTANDING})
+            self.db.crawl_queue.insert({'_id': url, 'status': self.OUTSTANDING})
         except errors.DuplicateKeyError as e:
             pass
 
     def pop(self):
-        record = self.db.wrawl_queue.find_and_modify(
+        record = self.db.crawl_queue.find_and_modify(
             query={'status': self.OUTSTANDING},
             update={'$set': {'status': self.PROCESSING, 'timestamp': datetime.now()}}
         )
@@ -31,6 +35,11 @@ class MongoQueue:
         else:
             self.repair()
             raise KeyError
+
+    def peek(self):
+        record = self.db.crawl_queue.find_one({'status': self.OUTSTANDING})
+        if record:
+            return record['_id']
 
     def complete(self, url):
         self.db.crawl_queue.update({'_id': url}, {'$set': {'status': self.COMPLETE}})
@@ -46,3 +55,6 @@ class MongoQueue:
         )
         if record:
             print('Released:', record['_id'])
+
+    def clear(self):
+        self.db.crawl_queue.drop()
