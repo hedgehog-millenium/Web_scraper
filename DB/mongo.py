@@ -4,8 +4,6 @@ from bs4 import BeautifulSoup
 import pickle
 import  zlib
 
-
-
 url = 'http://testurl.test'
 client = MongoClient('localhost',27017)
 db = client.cache

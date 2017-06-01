@@ -6,7 +6,7 @@ from Scrapers.downloader import Downloader
 
 
 def link_crawler(seed_url, link_regex=None, delay=1, max_depth=-1, max_urls=-1, user_agent=None,
-                 proxies=None, num_retries=1, scrape_callback=None, cache=None, ignore_robots=False, check_domain=True):
+                 proxies=None, num_retries=1, scrape_callback=None, cache=None, ignore_robots=True, check_domain=True):
     """Crawl from the given seed URL following links matched by link_regex
     """
     # the queue of URL's that still need to be crawled
