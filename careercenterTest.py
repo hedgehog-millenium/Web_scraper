@@ -31,9 +31,8 @@ def get_job_dict_from_html(html):
     h = lxml.html.fromstring(html)
     desc_dict = {}
 
-    print(h.cssselect('p>b'))
-    # print(h.cssselect('table>tr> td:nth-child(2) > font > b')[0].text)
-    desc_dict['COMPANY'] =  h.xpath('//body/p[1]/font/b/text()') or h.xpath('//body/table/tbody/tr/td[2]/font/b/text()')
+    company_name = h.cssselect('p:nth-child(1)>font>b') or h.cssselect('table>tr> td:nth-child(2) > font > b')
+    desc_dict['COMPANY'] = company_name
     for p in h.xpath('//p'):
         try:
             key = clear_key(p.xpath('b/text()')[0])
@@ -53,13 +52,12 @@ def save_to_json(desc_dict):
     return js
 
 
-
 if __name__ == "__main__":
     # scrape_callback = AlexaCallback()
     # max_threads = 10
     # process_crawler(scrape_callback.seed_url, scrape_callback=scrape_callback,  max_threads=max_threads,timeout=10)
-    # url = 'https://careercenter.am/ccdspann.php?id=28188'
-    url = 'https://careercenter.am/index.php?/ccdspann.php?id=28465'
+    url = 'https://careercenter.am/ccdspann.php?id=28188'
+    # url = 'https://careercenter.am/ccdspann.php?id=28465'
     d = Downloader()
     res = d(url=url)
 
