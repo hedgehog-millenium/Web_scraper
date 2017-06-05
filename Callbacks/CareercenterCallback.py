@@ -1,7 +1,6 @@
 import re, lxml, lxml.html
-import csv
-from urllib import parse
-
+from DB.mongo import MongoManager
+import json
 
 def clear_key(key):
     return key.replace(':', '').replace(' ', '_').replace('/', '').strip()
@@ -27,13 +26,8 @@ def get_job_dict_from_html(html):
 
 class careeercenterCalback:
     def __init__(self):
-        self.writer = csv.writer(open('ccJobs.csv', 'w'))
+        self.__dbMgr = MongoManager()
 
     def __call__(self, url, html):
         job_dict = get_job_dict_from_html(html)
-        row = []
-
-        for key in job_dict:
-            row.append(job_dict[key])
-
-        self.writer.writerow(row)
+        self.__dbMgr.Insert('parsed_jobs','career_center',job_dict)

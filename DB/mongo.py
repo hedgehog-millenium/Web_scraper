@@ -1,19 +1,31 @@
 from pymongo import MongoClient
-from bs4 import BeautifulSoup
 
-import pickle
-import  zlib
 
-url = 'http://testurl.test'
-client = MongoClient('localhost',27017)
-db = client.cache
-# db.webpage.insert({'url':url , 'html': 'html'})
-collections = db.webpage.find({})
+class MongoManager:
+    def __init__(self, host_name='localhost', port=27017):
+        self.__dbClient = MongoClient(host_name, port)
 
-for record in collections:
-    decomp_record = pickle.loads(zlib.decompress(record['result']))
-    print(decomp_record)
+    def GetAllDbs(self):
+        return self.__dbClient.database_names()
 
-print("there are %d documents in database"%collections.count())
+    def GetAllCollections(self, db_name):
+        return self.__dbClient[db_name].collection_names()
 
-client.close()
+    def FindAll(self, db_name,collection_name):
+        db = self.__dbClient[db_name]
+        return db[collection_name].find({})
+
+    def Find(self, db_name,collection_name,predicate):
+        db = self.__dbClient[db_name]
+        return db[collection_name].find(predicate)
+
+    def Insert(self, db_name, collection_name,obj):
+        db = self.__dbClient[db_name]
+        return db[collection_name].insert(obj)
+
+    def Update_one(self, db_name, collection_name,predicatie,obj):
+        db = self.__dbClient[db_name]
+        return db[collection_name].update_one(predicatie,obj)
+
+    def __del__(self):
+        self.__dbClient.close()
