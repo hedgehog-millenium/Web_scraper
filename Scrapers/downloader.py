@@ -1,7 +1,9 @@
 import random
 import socket
-from urllib import request, parse ,error
+from urllib import request, parse, error
 from Scrapers.throttle import Throttle
+from http.cookiejar import CookieJar
+import lxml.html
 
 
 class Downloader:
@@ -21,7 +23,7 @@ class Downloader:
                  timeout=__DEFAULT_TIMEOUT, opener=None, cache=None):
         socket.setdefaulttimeout(timeout)
         self.throttle = Throttle(delay)
-        self.user_agent = user_agent if not'None' else self.__DEFAULT_AGENT
+        self.user_agent = user_agent if not 'None' else self.__DEFAULT_AGENT
         self.proxies = proxies
         self.num_retries = num_retries
         self.opener = opener
@@ -76,3 +78,36 @@ class Downloader:
             else:
                 code = None
         return {'html': html, 'code': code}
+
+    @staticmethod
+    def login_cookies(url, data_dict={'email': 'email@gmail.com', 'passwor': 'password'}, proxy=None):
+        """working login
+        """
+        cj = CookieJar()
+        opener = request.build_opener(request.HTTPCookieProcessor(cj))
+
+        if proxy:
+            print("proxy = ", proxy)
+            proxy_params = {parse.urlparse(url).scheme: proxy}
+            opener.add_handler(request.ProxyHandler(proxy_params))
+
+        html = opener.open(url).read()
+        data = Downloader.parse_form(html)
+        for k in data_dict:
+            data[k] = data_dict[k]
+        encoded_data = parse.urlencode(data).encode('utf-8')
+        req = request.Request(url, encoded_data)
+        response = opener.open(req)
+        # print(response.geturl())
+        return opener
+
+    @staticmethod
+    def parse_form(html):
+        """extract all input properties from the form
+        """
+        tree = lxml.html.fromstring(html)
+        data = {}
+        for e in tree.cssselect('form input,form textarea'):
+            if e.get('name'):
+                data[e.get('name')] = e.get('value')
+        return data

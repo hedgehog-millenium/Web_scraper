@@ -60,7 +60,6 @@ def link_crawler(seed_url, link_regex=None, delay=1, max_depth=-1, max_urls=-1, 
             break
 
 
-
 def normalize(seed_url, link):
     """Normalize this URL by removing hash and adding domain
     """
