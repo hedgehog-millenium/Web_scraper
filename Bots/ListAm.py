@@ -19,7 +19,12 @@ class ListAmBot:
 if __name__ == "__main__":
     from Scrapers.proxy_manager import ProxyManager
     mgr = ProxyManager()
-    mgr.get_proxy_list()
+    proxies = mgr.get_free_proxy_list_net()
+
+    for i in range(10):
+        rnd_proxy = proxies[i]
+        res = mgr.check_proxy(rnd_proxy['proxy'], rnd_proxy['port'])
+        print(res)
 
     # bot = ListAmBot()
     # bot.add_flat_announcement()

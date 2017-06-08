@@ -53,8 +53,9 @@ class Downloader:
                 self.cache[url] = result
         return result['html']
 
-    def download(self, url, headers, proxy, num_retries, data=None):
+    def download(self, url, headers=None, proxy=None, num_retries=1, data=None):
         print('Downloading:', url)
+        headers = headers if not 'None' else {}
         if 'User-agent' not in headers.keys():
             headers['User-agent'] = random.choice(self.__user_agents)
 
