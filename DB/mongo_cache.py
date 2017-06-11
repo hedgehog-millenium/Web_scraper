@@ -7,36 +7,38 @@ from bson.binary import Binary
 
 
 class MongoCache:
-    def __init__(self, client=None, expires=timedelta(days=5)):
+    def __init__(self,collection='webpage', client=None, expires=timedelta(days=5)):
         self.client = MongoClient('localhost', 27017) if client is None else client
         self.db = self.client.cache
-        self.db.webpage.create_index('timestamp', expireAfterSeconds=expires.total_seconds())
+        self.collectionName = collection
+        self.collection = self.db[collection]
+        self.db[collection].create_index('timestamp', expireAfterSeconds=expires.total_seconds())
 
-    def __contains__(self, url):
+    def __contains__(self, id):
         try:
-            self[url]
+            self[id]
         except KeyError:
             return False
         else:
             return True
 
-    def __getitem__(self, url):
+    def __getitem__(self, id):
         """Load value at this URL
        """
-        record = self.db.webpage.find_one({'_id': url})
+        record = self.collection.find_one({'_id': id})
         if record:
-            return pickle.loads(zlib.decompress(record['result']))
+            return pickle.loads(zlib.decompress(record['data']))
         else:
-            raise KeyError(url + ' does not exist')
+            raise KeyError(id + ' does not exist')
 
-    def __setitem__(self, url, result):
+    def __setitem__(self, id, data):
         """Save value for this URL
         """
         record = {
-            'result': Binary(zlib.compress(pickle.dumps(result))),
+            'data': Binary(zlib.compress(pickle.dumps(data))),
             'timestamp': datetime.utcnow()
         }
-        self.db.webpage.update({'_id': url}, {'$set': record}, upsert=True)
+        self.collection.update({'_id': id}, {'$set': record}, upsert=True)
 
     def clear(self):
-        self.db.webpage.drop()
+        self.collection.drop()

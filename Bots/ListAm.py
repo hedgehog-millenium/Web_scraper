@@ -18,13 +18,10 @@ class ListAmBot:
 
 if __name__ == "__main__":
     from Scrapers.proxy_manager import ProxyManager
-    mgr = ProxyManager()
-    proxies = mgr.get_free_proxy_list_net()
-
-    for i in range(10):
-        rnd_proxy = proxies[i]
-        res = mgr.check_proxy(rnd_proxy['proxy'], rnd_proxy['port'])
-        print(res)
-
-    # bot = ListAmBot()
-    # bot.add_flat_announcement()
+    from DB.mongo_cache import MongoCache
+    from datetime import timedelta
+    proxyCache = MongoCache(collection='proxy', client=None,expires=timedelta(minutes=50))
+    mgr = ProxyManager(cache=proxyCache)
+    proxies = mgr.get_checked_proxy_list(timeout=5)
+    print(proxies)
+    print('total count',len(proxies))
