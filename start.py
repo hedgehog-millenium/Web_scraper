@@ -38,7 +38,7 @@ if __name__ == "__main__":
     regex_pat = '.*d{1,3}/'
     proxyCache = MongoCache(collection='proxies',client=None,expires=timedelta(minutes=10))
     prxMgr = ProxyManager(cache=proxyCache)
-    proxies = prxMgr.get_checked_proxy_list(5)
+    proxies = prxMgr.get_checked_proxy_list(count=1)
     link_crawler(seed_url=url,link_regex=regex_pat,delay=0,scrape_callback=policeamCallback(),cache=MongoCache(),proxies=proxies)
 
     # printDb()

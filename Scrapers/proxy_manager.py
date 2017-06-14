@@ -111,10 +111,14 @@ class ProxyManager:
     def get_checked_proxy_list(self, count=10,timeout=10):
         proxies = self.get_free_proxy_list_net()
         result = []
-        while len(result) < count and len(proxies) > 0:
+        while True:
             proxy = proxies.pop()
             print('checking proxy : %s:%s'%(proxy['proxy'], proxy['port']))
             res = self.check_proxy(proxy['proxy'], proxy['port'], timeout)
             if res['alive'] and res['secure']:
-                result.append(res)
+                result.append(res['proxy'])
+            print('proxies left: %d , resut proxy amount: %d'%(len(proxies),len(result)))
+            if len(result) >= count or len(proxies) == 0:
+                break
+
         return result
