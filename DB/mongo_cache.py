@@ -5,14 +5,17 @@ import pickle
 import zlib
 from bson.binary import Binary
 
+from DB.mongo import MongoManager
+
 
 class MongoCache:
-    def __init__(self,collection='webpage', client=None, expires=timedelta(days=5)):
+    def __init__(self, collection='webpage', client=None, expires=timedelta(days=5), useCompression=True):
+        self.useCompression = useCompression
         self.client = MongoClient('localhost', 27017) if client is None else client
         self.db = self.client.cache
         self.collectionName = collection
         self.collection = self.db[collection]
-        self.db[collection].create_index('timestamp', expireAfterSeconds=expires.total_seconds())
+        self.collection.create_index('timestamp', expireAfterSeconds=expires.total_seconds())
 
     def __contains__(self, id):
         try:
@@ -27,7 +30,7 @@ class MongoCache:
        """
         record = self.collection.find_one({'_id': id})
         if record:
-            return pickle.loads(zlib.decompress(record['data']))
+            return MongoCache.decompress(record['data']) if self.useCompression else record['data']
         else:
             raise KeyError(id + ' does not exist')
 
@@ -35,10 +38,26 @@ class MongoCache:
         """Save value for this URL
         """
         record = {
-            'data': Binary(zlib.compress(pickle.dumps(data))),
+            'data': MongoCache.compress(data) if self.useCompression else data,
             'timestamp': datetime.utcnow()
         }
         self.collection.update({'_id': id}, {'$set': record}, upsert=True)
 
+    def getAll(self):
+        records = []
+        all_caches = self.collection.find({})
+        for c in all_caches:
+            rec = MongoCache.decompress(c['data']) if self.useCompression else c['data']
+            records.append(rec)
+        return records
+
     def clear(self):
         self.collection.drop()
+
+    @staticmethod
+    def compress(data):
+        return Binary(zlib.compress(pickle.dumps(data)))
+
+    @staticmethod
+    def decompress(data):
+        return pickle.loads(zlib.decompress(data))

@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 from pymongo import MongoClient, errors
+from DB.IQueue import IQueue
 
 
-class MongoQueue:
+class MongoQueue(IQueue):
     # possible states of a download
     OUTSTANDING, PROCESSING, COMPLETE = range(3)
 

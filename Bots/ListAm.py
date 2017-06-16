@@ -17,7 +17,7 @@ class ListAmBot:
 
 
 if __name__ == "__main__":
-    from Scrapers.proxy_manager import ProxyManager
+    from Helpers.proxy_manager import ProxyManager
     from DB.mongo_cache import MongoCache
     from datetime import timedelta
     proxyCache = MongoCache(collection='proxy', client=None,expires=timedelta(minutes=50))

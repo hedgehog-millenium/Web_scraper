@@ -4,13 +4,7 @@ import lxml.html
 import re
 import time
 import ssl
-
-def check_proxies(proxy_list):
-    result = []
-    for proxy in proxy_list:
-        result.append(ProxyManager.check_proxies(proxy['proxy'], proxy['port']))
-
-    return result
+from datetime import datetime
 
 
 class ProxyManager:
@@ -26,7 +20,7 @@ class ProxyManager:
         if self.cache:
             try:
                 result = self.cache[proxy_str]
-                print('check_proxy result is gotten from cache')
+                print('%s was in cache' % proxy_str)
             except KeyError:
                 pass
         if len(result) == 0:
@@ -41,7 +35,7 @@ class ProxyManager:
                 resp_text = resp.read()
                 is_secure = proxy in resp_text.decode('utf-8')
                 result = {'proxy': proxy_str, 'visible_ip': resp_text, 'alive': True, 'secure': is_secure,
-                          'performance': duration}
+                          'performance': duration,'check_time': datetime.utcnow()}
                 if self.cache:
                     self.cache[proxy_str] = result
             except IOError as e:
@@ -51,6 +45,62 @@ class ProxyManager:
                           'error': e}
 
         return result
+
+    def get_free_proxy_list_net(self, onlyAnonymous=True, httpsSupport=True):
+
+        proxies = []
+        if self.cache:
+            try:
+                proxies = self.cache['proxylist']
+                print('Proxies are found in cache')
+            except KeyError:
+                pass
+
+        if len(proxies) == 0:
+            D = Downloader()
+            url = 'https://free-proxy-list.net'
+            html_string = D.download(url, headers=None, proxy=None, num_retries=1)
+            for p in ProxyManager.extract_proxy_list_net_proxy_fromhtml(html_string):
+                proxies.append(p)
+            # set proxies to cash
+            if self.cache:
+                self.cache['proxylist'] = proxies
+
+        if onlyAnonymous:
+            proxies = [p for p in proxies if p['anonymity'] == 'anonymous']
+        if httpsSupport:
+            proxies = [p for p in proxies if p['https'] == 'yes']
+
+        return proxies
+
+    def get_checked_proxy_list(self, count=10, timeout=10):
+        proxies = self.get_free_proxy_list_net()
+        result = []
+        while len(result) < count and len(proxies) > 0:
+            proxy = proxies.pop()
+            print('checking proxy : %s:%s' % (proxy['proxy'], proxy['port']))
+            res = self.check_proxy(proxy['proxy'], proxy['port'], timeout)
+            if res['alive'] and res['secure']:
+                result.append(res)
+        return result
+
+    @staticmethod
+    def extract_proxy_list_net_proxy_fromhtml(html_string):
+        tbl = lxml.html.fromstring(html_string['html']).cssselect('#proxylisttable')
+        rows = tbl[0].xpath('tbody/tr')
+        for r in rows:
+            proxy = {}
+            cols = r.xpath('td')
+            proxy['proxy'] = cols[0].xpath('string(text())')
+            proxy['port'] = cols[1].xpath('string(text())')
+            proxy['code'] = cols[2].xpath('string(text())')
+            proxy['country'] = cols[3].xpath('string(text())')
+            proxy['anonymity'] = cols[4].xpath('string(text())')
+            proxy['google'] = cols[5].xpath('string(text())')
+            proxy['https'] = cols[6].xpath('string(text())')
+            proxy['lastchecked'] = cols[7].xpath('string(text())')
+
+            yield proxy
 
     @classmethod
     # is not completed
@@ -71,50 +121,3 @@ class ProxyManager:
             ip_arr = [sp.xpath('string(text())').replace('.', '') for sp in child_spans if
                       sp.get('class') not in nondisp_classes]
             print(''.join(ip_arr))
-
-    def get_free_proxy_list_net(self):
-
-        proxies = []
-        if self.cache:
-            try:
-                proxies = self.cache['proxylist']
-                print('Proxies are found in cache')
-            except KeyError:
-                pass
-
-        if len(proxies) == 0:
-            D = Downloader()
-            url = 'https://free-proxy-list.net'
-            html_string = D.download(url, headers=None, proxy=None, num_retries=1)
-            tbl = lxml.html.fromstring(html_string['html']).cssselect('#proxylisttable')
-            rows = tbl[0].xpath('tbody/tr')
-            for r in rows:
-                proxy = {}
-                cols = r.xpath('td')
-                proxy['proxy'] = cols[0].xpath('string(text())')
-                proxy['port'] = cols[1].xpath('string(text())')
-                proxy['code'] = cols[2].xpath('string(text())')
-                proxy['country'] = cols[3].xpath('string(text())')
-                proxy['anonymity'] = cols[4].xpath('string(text())')
-                proxy['google'] = cols[5].xpath('string(text())')
-                proxy['https'] = cols[6].xpath('string(text())')
-                proxy['lastchecked'] = cols[7].xpath('string(text())')
-
-                proxies.append(proxy)
-            # set proxies to cash
-            if self.cache:
-                self.cache['proxylist'] = proxies
-
-        filtered_proxies = [p for p in proxies if p['anonymity'] == 'anonymous' and p['https'] == 'yes']
-        return filtered_proxies
-
-    def get_checked_proxy_list(self, count=10,timeout=10):
-        proxies = self.get_free_proxy_list_net()
-        result = []
-        while len(result) < count and len(proxies) > 0:
-            proxy = proxies.pop()
-            print('checking proxy : %s:%s'%(proxy['proxy'], proxy['port']))
-            res = self.check_proxy(proxy['proxy'], proxy['port'], timeout)
-            if res['alive'] and res['secure']:
-                result.append(res)
-        return result
