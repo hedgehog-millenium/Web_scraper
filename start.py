@@ -5,7 +5,7 @@ from DB.mongo import MongoManager
 from DB.mongo_cache import MongoCache
 from Helpers.proxy_manager import ProxyManager
 from Scrapers.scraper import link_crawler
-
+from Scrapers.process_crawler import process_crawler,threaded_crawler
 
 def printDb():
     # Print All Dbs and Collections
@@ -34,23 +34,12 @@ if __name__ == "__main__":
     # url = 'https://careercenter.am/ccidxann.php'
     # regex_pat = '.*ccdspann\.php\?id=d*'
 
-<<<<<<< HEAD
     url = 'http://www.police.am/Cucakner/'
     regex_pat = '\d{1,3}/'
-    # proxyCache = MongoCache(collection='proxies', client=None, expires=timedelta(minutes=20), useCompression=False)
-    # prxMgr = ProxyManager(cache=proxyCache)
-    # proxies_list = prxMgr.get_checked_proxy_list(5)
-    # proxies = [p['proxy'] for p in proxies_list]
-    link_crawler(seed_url=url, link_regex=regex_pat, delay=0, scrape_callback=policeamCallback(), cache=MongoCache())#,
-                 #proxies=proxies)
-=======
-    url = 'http://www.police.am/Cucakner'
-    regex_pat = '.*d{1,3}/'
-    proxyCache = MongoCache(collection='proxies',client=None,expires=timedelta(minutes=10))
+    proxyCache = MongoCache(collection='proxies', client=None, expires=timedelta(minutes=20), useCompression=False)
     prxMgr = ProxyManager(cache=proxyCache)
-    proxies = prxMgr.get_checked_proxy_list(count=1)
-    link_crawler(seed_url=url,link_regex=regex_pat,delay=0,scrape_callback=policeamCallback(),cache=MongoCache(),proxies=proxies)
-
-    # printDb()
-
->>>>>>> d54afd3186cf17aa9113fc09b623aa9238a64566
+    proxy_list = prxMgr.get_checked_proxy_list(5)
+    callback = policeamCallback(proxy_list)
+    link_crawler(seed_url=url, link_regex=regex_pat, delay=0, scrape_callback=callback, cache=MongoCache(), proxies=proxy_list)
+    # process_crawler(url, delay=0, link_regex=regex_pat, scrape_callback=callback, proxies=proxy_list,num_retries=3,timeout=10)
+    print(len(callback.xls_links))

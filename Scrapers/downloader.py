@@ -4,7 +4,6 @@ from urllib import request, parse, error
 from Scrapers.throttle import Throttle
 from http.cookiejar import CookieJar
 import lxml.html
-import ssl
 
 
 class Downloader:
@@ -35,19 +34,22 @@ class Downloader:
         if self.cache:
             try:
                 result = self.cache[url]
-                print('Url: %s found in cache' % url)
+                if not result['html'] or result['html'] is None:
+                    result = None
+                    print('Url: %s found in cache but  result["html"] is empty ' % url)
+                else:
+                    print('Url: %s found in cache' % url)
             except KeyError:
                 # url is not available in cache
                 pass
             else:
-<<<<<<< HEAD
-
-                if (result['code'] is not None ) and (self.num_retries > 0 and 500 <= result['code'] < 600):
-=======
-                if self.num_retries > 0 and (result['code'] and 500 <= result['code'] < 600):
->>>>>>> d54afd3186cf17aa9113fc09b623aa9238a64566
-                    # server error so ignore result from cache and re-download
+                try:
+                    code = result['code']
+                    if self.num_retries > 0 and (500 <= code < 600):
+                        result = None
+                except TypeError:
                     result = None
+
         if result is None:
             # result was not loaded from cache so still need to download
             self.throttle.wait(url)
@@ -78,7 +80,6 @@ class Downloader:
             print('Download error:', str(e))
             html = ''
             if hasattr(e, 'code'):
-                print(e.code)
                 code = e.code
                 if num_retries > 0 and 500 <= code < 600:
                     # retry 5XX HTTP errors
@@ -86,6 +87,25 @@ class Downloader:
             else:
                 code = None
         return {'html': html, 'code': code}
+
+    def download_file(self, url, headers=None, proxy=None, data=None):
+        print('Downloading:', url)
+        headers = headers if not 'None' else {}
+        if 'User-agent' not in headers.keys():
+            headers['User-agent'] = random.choice(self.__user_agents)
+
+        req = request.Request(url, data, headers or {})
+        opener = self.opener or request.build_opener()
+        if proxy:
+            proxy_params = {parse.urlparse(url).scheme: proxy}
+            opener.add_handler(request.ProxyHandler(proxy_params))
+        try:
+            response = opener.open(req)
+            file = response.read()
+            return file
+        except Exception as e:
+            print(str(e))
+            return None
 
     @staticmethod
     def login_cookies(url, data_dict={'email': 'email@gmail.com', 'passwor': 'password'}, proxy=None):

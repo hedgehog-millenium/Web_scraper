@@ -1,13 +1,14 @@
-import lxml
-import lxml.html
+import os
+from os.path import isfile, join
+import re
 
+path = 'C:\\Users\\Samvel.Kocharyan\\Desktop\\reg_files'
+files = [f for f in os.listdir(path) if isfile(join(path, f))]
+nums = [re.findall('(\d{1,2}_\d{1,2}).xls', f)[0].split('_') for f in files]
 
-# html_str = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">\n<html>\n <head>\n  <title>Index of /Cucakner/1</title>\n </head>\n <body>\n<h1>Index of /Cucakner/1</h1>\n<pre><img src="/icons/blank.gif" alt="Icon "> <a href="?C=N;O=D">Name</a>                    <a href="?C=M;O=A">Last modified</a>      <a href="?C=S;O=A">Size</a>  <a href="?C=D;O=A">Description</a><hr><img src="/icons/back.gif" alt="[DIR]"> <a href="/Cucakner/">Parent Directory</a>                             -   \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_01.xls">1_01.xls</a>                29-Mar-2017 09:28  386K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_02.xls">1_02.xls</a>                29-Mar-2017 09:28  386K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_03.xls">1_03.xls</a>                29-Mar-2017 09:28  390K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_04.xls">1_04.xls</a>                29-Mar-2017 09:28  395K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_05.xls">1_05.xls</a>                29-Mar-2017 09:28  351K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_06.xls">1_06.xls</a>                29-Mar-2017 09:28  396K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_07.xls">1_07.xls</a>                29-Mar-2017 09:28  347K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_08.xls">1_08.xls</a>                29-Mar-2017 09:28  326K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_09.xls">1_09.xls</a>                29-Mar-2017 09:28  329K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_10.xls">1_10.xls</a>                29-Mar-2017 09:28  403K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_11.xls">1_11.xls</a>                29-Mar-2017 09:28  389K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_12.xls">1_12.xls</a>                29-Mar-2017 09:28  388K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_13.xls">1_13.xls</a>                29-Mar-2017 09:28  367K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_14.xls">1_14.xls</a>                29-Mar-2017 09:28  404K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_15.xls">1_15.xls</a>                29-Mar-2017 09:28  367K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_16.xls">1_16.xls</a>                29-Mar-2017 09:28  291K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_17.xls">1_17.xls</a>                29-Mar-2017 09:28  325K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_18.xls">1_18.xls</a>                29-Mar-2017 09:28  402K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_19.xls">1_19.xls</a>                29-Mar-2017 09:28  392K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_20.xls">1_20.xls</a>                29-Mar-2017 09:28  341K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_21.xls">1_21.xls</a>                29-Mar-2017 09:28  328K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_22.xls">1_22.xls</a>                29-Mar-2017 09:28  341K  \n<img src="/icons/unknown.gif" alt="[   ]"> <a href="1_23.xls">1_23.xls</a>                29-Mar-2017 09:28  284K  \n<hr></pre>\n</body></html>'
-#
-# html = lxml.html.fromstring(html_str)
-# links = html.xpath('//a')
-# print(html)
-
-from urllib.request import urlopen, urlretrieve
-dls = "http://www.police.am/Cucakner/38/38_01.xls"
-urlretrieve(dls, "38_01.xls")
+for i in range(len(nums)):
+    if (i < len(nums) - 1):
+        n1, n1_next = (int(nums[i][0]), int(nums[i + 1][0]))
+        n2, n2_next = (int(nums[i][1]), int(nums[i + 1][1]))
+        if n1 == n1_next and n2_next!=n2+1:
+            print(nums[i])

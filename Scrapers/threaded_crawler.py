@@ -8,7 +8,7 @@ from DB.mongo_cache import MongoCache
 SLEEP_TIME = 1
 
 
-def threaded_crawler(seed_url, delay=5, scrape_callback=None, user_agent='wswp', proxies=None, num_retries=1,
+def threaded_crawler(seed_url, delay=5, scrape_callback=None, user_agent=None, proxies=None, num_retries=1,
                      max_threads=10, timeout=60):
     """Crawl this website in multiple threads
     """
