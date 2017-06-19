@@ -34,6 +34,7 @@ if __name__ == "__main__":
     # url = 'https://careercenter.am/ccidxann.php'
     # regex_pat = '.*ccdspann\.php\?id=d*'
 
+<<<<<<< HEAD
     url = 'http://www.police.am/Cucakner/'
     regex_pat = '\d{1,3}/'
     # proxyCache = MongoCache(collection='proxies', client=None, expires=timedelta(minutes=20), useCompression=False)
@@ -42,3 +43,14 @@ if __name__ == "__main__":
     # proxies = [p['proxy'] for p in proxies_list]
     link_crawler(seed_url=url, link_regex=regex_pat, delay=0, scrape_callback=policeamCallback(), cache=MongoCache())#,
                  #proxies=proxies)
+=======
+    url = 'http://www.police.am/Cucakner'
+    regex_pat = '.*d{1,3}/'
+    proxyCache = MongoCache(collection='proxies',client=None,expires=timedelta(minutes=10))
+    prxMgr = ProxyManager(cache=proxyCache)
+    proxies = prxMgr.get_checked_proxy_list(count=1)
+    link_crawler(seed_url=url,link_regex=regex_pat,delay=0,scrape_callback=policeamCallback(),cache=MongoCache(),proxies=proxies)
+
+    # printDb()
+
+>>>>>>> d54afd3186cf17aa9113fc09b623aa9238a64566
