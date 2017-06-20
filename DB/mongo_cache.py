@@ -9,7 +9,7 @@ from DB.mongo import MongoManager
 
 
 class MongoCache:
-    def __init__(self, collection='webpage', client=None, expires=timedelta(days=5), useCompression=True):
+    def __init__(self, collection='webpage', client=None, expires=timedelta(days=30), useCompression=True):
         self.useCompression = useCompression
         self.client = MongoClient('localhost', 27017) if client is None else client
         self.db = self.client.cache
