@@ -7,9 +7,9 @@ from Scrapers.downloader import Downloader
 
 
 class policeamCallback:
-    def __init__(self,proxies=None):
+    def __init__(self,files_path,proxies=None):
         self.xls_patt = '.*\d{0,2}_\d{0,2}.xls$'
-        self.path_name = 'C:\\Users\\Samvel.Kocharyan\\Desktop\\reg_files'
+        self.path_name = files_path
         self.files_in_folder = [f for f in os.listdir(self.path_name) if isfile(join(self.path_name, f))]
         self.__downloader = Downloader()
         self.__proxies = proxies if not None else []

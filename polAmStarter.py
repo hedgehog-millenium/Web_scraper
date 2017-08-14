@@ -13,7 +13,8 @@ if __name__ == '__main__':
     proxyCache = MongoCache(collection='proxies', client=None, expires=timedelta(minutes=20), useCompression=False)
     prxMgr = ProxyManager(cache=proxyCache)
     proxy_list = prxMgr.get_checked_proxy_list(5)
-    callback = policeamCallback(proxy_list)
+    files_path = 'C:\\Users\\Samvel.Kocharyan\\Desktop\\reg_files'
+    callback = policeamCallback(files_path,proxy_list)
     link_crawler(seed_url=url, link_regex=regex_pat, delay=0, scrape_callback=callback, cache=MongoCache(), proxies=proxy_list)
     # process_crawler(url, delay=0, link_regex=regex_pat, scrape_callback=callback, proxies=proxy_list,num_retries=3,timeout=10)
     print(len(callback.xls_links))
